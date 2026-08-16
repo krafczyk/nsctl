@@ -1,0 +1,52 @@
+digraph nnsctl_diagram {
+    rankdir=LR;
+    splines=ortho;
+    node [shape=box, style="rounded,filled", fontname="Helvetica"];
+
+    // Outer container: Host Computer
+    subgraph cluster_host_computer {
+        label="Host Computer";
+        style=rounded;
+        color=black;
+
+        // Inner cluster: Host Network Namespace
+        subgraph cluster_host_ns {
+            label="Host Network Namespace";
+            style=filled;
+            fillcolor="#f0f0f0";
+            color="#cccccc";
+            
+            host1 [label="Physical NIC\n(HOST_IF, HOST_IP)"];
+            host2 [label="Host Veth Endpoint\n(OUT_IF, OUT_IP)"];
+            host3 [label="Host Routing & iptables\n(IP Forwarding, DNAT/SNAT,\nMASQUERADE)"];
+        }
+
+        // Inner cluster: Network Namespace (<ns_name>)
+        subgraph cluster_net_ns {
+            label="Network Namespace (<ns_name>)";
+            style=filled;
+            fillcolor="#e0f7fa";
+            color="#80deea";
+            
+            ns1 [label="Applications"];
+            ns2 [label="Namespace Veth Endpoint\n(IN_IF, IN_IP)"];
+            ns3 [label="VPN Client\n(OpenConnect, VPN_IF)"];
+            ns4 [label="DNS Settings\n(/etc/netns/<ns_name>/resolv.conf)"];
+        }
+    }
+
+    // External nodes
+    internet [label="Internet", shape=ellipse, style=filled, fillcolor="#fff59d"];
+    localhost [label="Host Local Services", shape=ellipse, style=filled, fillcolor="#c8e6c9"];
+
+    // Traffic flow edges
+    ns1 -> ns2 [label="Application traffic"];
+    ns2 -> host2 [label="veth pair connection"];
+    host2 -> host3 [label="Routing decision"];
+    host3 -> host1 [label="Forwarding"];
+    host1 -> internet [label="Internet traffic"];
+
+    ns3 -> internet [label="VPN route", style=dotted];
+    host3 -> localhost [label="DNAT/SNAT for local services", style=dashed];
+    ns4 -> ns1 [style=dotted, label="DNS resolution"];
+}
