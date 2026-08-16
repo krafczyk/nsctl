@@ -1,0 +1,17 @@
+
+[Unit]
+Description=ExpressVPN Daemon
+After=network-online.target
+
+[Service]
+User=root
+EnvironmentFile=-/etc/default/expressvpn
+Environment=PATH=/bin:/sbin:/usr/bin:/usr/sbin
+ExecStart=/usr/sbin/expressvpnd --client-version 2.1.0 --client-build 7586
+KillMode=process
+KillSignal=SIGINT
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
