@@ -61,9 +61,6 @@ def scrub_routes_and_iptables(sentinel: str, cmd_opts: RunCheckOutputArgs|None=N
                 run_check(cmd, **cmd_opts)
 
 
-
-
-
 def scrub_routes(subnet: str):
     print("Checking host routes...")
     routes = run_check_output("ip route show")
